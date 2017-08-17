@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Web de Firebase</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+<div class="container">
+	<h5>Valores de objeto</h5>
+	<br>
+	<!--<table class="table table-striped">
+	</table>-->
+	<div class="row">
+		<!--<div class="col-sm-4">
+			<label for="tipo">Tipo de notificaci&oacute;n</label>
+			<select id="tipo" name="tipo" class="form-control"></select>
+		</div>-->
+		<div class="col-sm-4">
+			<label for="tipo">Tipo de notificaci&oacute;n</label>
+			<input id="tipo" name="tipo" class="form-control" />
+		</div>
+		<div class="col-sm-4">
+			<label for="tipoEjercicio">Tipo de ejercicio</label>
+			<input type="text" id="tipoEjercicio" name="tipoEjercicio" class="form-control" />
+		</div>	
+	</div>
+	<br>
+	<div class="row">
+		<div class="col-sm-3">
+			<button class="btn btn-success" onclick="return insertarNotificacion(event);"> Enviar</button>
+		</div>
+		<div class="col-sm-3">
+			
+		</div>
+	</div>
+	<br><br>
+	<table class="table table-striped">
+		<tr>
+			<th>Recomendaci&oacute;n</th>
+			<th>Valor</th>
+		</tr>
+		<div id="divRecomendaciones">
+		</div>
+	</table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.1.1/firebase.js"></script>
+<script type="text/javascript">
+	window.onload = function(){
+		//llenarComboTipo();
+		setTimeout(function(){
+			llenarTabla();
+		},500);
+		
+	};
+		
+
+	var config = {
+		apiKey: "AIzaSyC19RF5MhVJhlrrN9LZ3SRpBrqjwWztyiw",
+		authDomain: "notificacion-cd32e.firebaseapp.com",
+		databaseURL: "https://notificacion-cd32e.firebaseio.com/",
+		//databaseURL: "https://console.firebase.google.com/project/notificacion-cd32e/database/data/",
+		storageBucke: "gs://notificacion-cd32e.appspot.com",
+	};
+	firebase.initializeApp(config);
+	function llenarTabla(){
+		var trString = '';
+		baseReferencia = firebase.database().ref('Notificaciones/Correo/');
+		baseReferencia.on('value',function(datos) {
+			datos.forEach(function(data){
+				document.getElementById('divRecomendaciones').innerHTML = '<tr><td>'+data.val().Ejercicio+'</td></tr>';
+				//console.log(datos);
+				//console.log(JSON.parse(data.val()));
+				/*data.forEach(function(child){
+				});*/
+			});
+		});
+            /*data.forEach(function(child){  
+
+            	trString += '<tr>'+child.val().Recomendaciones.Ejercicio+'</tr>';
+            	document.getElementById('divRecomendaciones').innerHTML = '<tr>'+child.val().Recomendaciones.Ejercicio+'</tr>';*/
+
+            	//console.log(child.val().Recomendaciones);  
+                /*childReference = firebase.database().ref('Correo/Recomendaciones/'+child.key);
+                childReference.on('value',function(datos) {   	                          
+                });                      
+            });  
+            //console.log(trString);
+            document.getElementById('divRecomendaciones').innerHTML = trString;          
+        });*/
+	}
+	// El push generar un id automatico
+	// El Set sobreescribe el registro
+	function insertarNotificacion(event){
+		event.preventDefault();
+		firebase.database().ref('Notificaciones/'+document.getElementById('tipo').value+'/Recomendaciones/').set({
+            Ejercicio:document.getElementById('tipoEjercicio').value,
+        });
+
+	}
+
+</script>
+
+
+
+
+
+<!--<div id="console">
+</div>-->
+<script>
+	  // Initialize Firebase
+	  // TODO: Replace with your project's customized code snippet
+	  /*(function (){
+	  	var config = {
+		    apiKey: "AIzaSyC19RF5MhVJhlrrN9LZ3SRpBrqjwWztyiw",
+		    authDomain: "notificacion-cd32e.firebaseapp.com",
+		    datatbaseURL: "https://notificacion-cd32e.firebaseio.com",
+		    storageBucke: "gs://notificacion-cd32e.appspot.com",
+	  	};
+	  	firebase.initializeApp(config);
+		  // Creación de objeto
+		  var console = document.getElementById('console');
+		  // Creación de referencias
+		  var database = firebase.database();
+		  // Sicronización de los cambios de los objeto
+		  var fruitRef = database.ref().child('fruit');
+		  fruitRef.on('value', function(captura){
+		  	console.log('captura '+captura);
+		  });	
+	  }());*/
+</script>
+
+</body>
+</html>

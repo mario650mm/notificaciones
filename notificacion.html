@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Notificación en el navegador</title>
+</head>
+<body>
+<h3>Notificaciones</h3>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<script>
+window.onload = function(){
+	generarNotificacion();
+};
+  function generarNotificacion(){
+  	// Initialize Firebase
+	  /*var config = {
+	    apiKey: "AIzaSyCXJJ2imR3BgPaw9pefMuebuHCzy2JEf7g",
+	    authDomain: "web-notificaciones.firebaseapp.com",
+	    databaseURL: "https://web-notificaciones.firebaseio.com",
+	    projectId: "web-notificaciones",
+	    storageBucket: "gs://web-notificaciones.appspot.com/",
+	    messagingSenderId: "900247921968"
+	  };
+	  firebase.initializeApp(config);*/
+	  var config = {
+	    apiKey: "AIzaSyC19RF5MhVJhlrrN9LZ3SRpBrqjwWztyiw",
+	    authDomain: "notificacion-cd32e.firebaseapp.com",
+	    databaseURL: "https://notificacion-cd32e.firebaseio.com",
+	    projectId: "notificacion-cd32e",
+	    storageBucket: "notificacion-cd32e.appspot.com",
+	    messagingSenderId: "665323947746"
+	  };
+	  firebase.initializeApp(config);
+
+	var promise = firebase.auth().signInWithEmailAndPassword('mario650m@gmail.com','$vzertwifi$');
+    //firebase.auth().currentUser;
+    //var promise = firebase.auth().createUserWithEmailAndPassword('mario650m@gmail.com','$vzertwifi$');
+    promise.then(user => console.log(''))
+    .catch(e => console.log(e.message));
+
+	  /*var datos = firebase.database().ref().child('/Notificaciones/').orderByChild('/Notificaciones/').limitToLast(5);
+
+	  datos.on('child_added').then(function(snap){
+
+	  		var llave = snap.key;
+	  		var notif = JSON.stringify(snap.val());
+	  });*/
+
+	baseReferencia = firebase.database().ref('/Notificaciones/Correo/Recomendaciones/').orderByChild('/Notificaciones/Correo/Recomendaciones/').limitToLast(5);
+    baseReferencia.once('value').then(function(data) {
+      //var lista = '';
+      data.forEach(function(child){ 
+      	//var Noti = JSON.stringify(child.val());
+        /*if(data.key != child.key){
+            baseReferencia2 = firebase.database().ref('Notificaciones/Correo/Recomendaciones/'+child.key+'/');
+            console.log(child.val()["Ejercicio"]);
+            console.log(child.val()["Frecuencia"]);
+        }  */
+        //----------------------------NOTIFICACION (API MOZILLA)-------------------
+	  if(!("Notification" in window)){
+	  		alert("Este Navegador no permite notificaciones");
+	  }
+	  else if(Notification.permission == "granted"){
+	  		//var titulo = child.val()["Ejercicio"];
+	  		var options ={
+	  			body: 'Frecuencia ' + child.val()["Frecuencia"],
+	  			icon:"icon.png",
+	  			sound:"tono_loco.mp3"
+	  		};
+	  		//console.log(options);
+	  		var notification = new Notification('Ejercicio '+  child.val()["Ejercicio"],options);
+	  		notification.sound;
+	  } 
+	  else if(Notification.permission !== 'denegado'){
+	  	 Notification.requestPermission(function(permission){
+
+	  	 	if(!('permission') in Notification){
+	  	 		console.log('permiso denegado');
+	  	 		Notification.permission = permission;
+	  	 	}
+	  	 });
+	  }                         
+    });
+  });
+
+
+
+
+} // Fin de la función
+  
+</script>	
+</body>
+</html>

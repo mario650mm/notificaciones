@@ -1,0 +1,13 @@
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCXJJ2imR3BgPaw9pefMuebuHCzy2JEf7g",
+    authDomain: "web-notificaciones.firebaseapp.com",
+    databaseURL: "https://web-notificaciones.firebaseio.com",
+    projectId: "web-notificaciones",
+    storageBucket: "",
+    messagingSenderId: "900247921968"
+  };
+  firebase.initializeApp(config);
+</script>
