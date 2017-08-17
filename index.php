@@ -50,6 +50,9 @@
     <div class="col-sm-3" style="margin-top:35px;">
       <button class="btn btn-default btn-sm" onclick="llenarTabla('tipoNot');">Buscar</button>
     </div>
+    <div class="col-sm-3" style="margin-top:35px;">
+      <button class="btn btn-primary btn-sm" onclick="mostrarNotificaciones('tipoNot');">Mostrar notificaciones</button>
+    </div>
   </div>
   <br><br> 
   <h3 align="center" style="color:#0DA6C5;">Notificaciones</h3>
@@ -61,6 +64,7 @@
 	</table>
 </div>
 <input type="hidden" id="validacionHidden" name="validacionHidden" />
+<input type="hidden" id="roleHidden" name="roleHidden" />
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
@@ -110,9 +114,9 @@ window.onload = function(){
                   document.getElementById('validacionHidden').value = 1;
                   var strRole = JSON.stringify(data.val().roles);
                   if(strRole == '{"lector":true}'){
-                      window.role = 'lector';
+                      document.getElementById('roleHidden').value = 2;
                   }else{
-                    window.role = 'administrador';
+                    document.getElementById('roleHidden').value = 1;
                   }
               }else{
                 document.getElementById('validacionHidden').value = 0;
@@ -134,11 +138,11 @@ window.onload = function(){
           data.forEach(function(child){   
             if(data.key != child.key){
                 baseReferencia2 = firebase.database().ref('Notificaciones/Correo/Recomendaciones/'+child.key+'/');
-                if(window.role == 'administrador'){
+                if(document.getElementById('roleHidden').value == 1){
                       encabezados = '<tr><th width="100%">Tipo de ejercicio</th><th width="100%">Frecuencia</th><th width="100%">Acciones</th></tr>';
                   lista += '<tr><td>'+child.val()["Ejercicio"]+'</td><td>'+child.val()["Frecuencia"]+'</td><td><a href="edit.php?id='+child.key+'&tipo='+tipo+'" class="btn btn-primary btn-sm">Editar</a></td></tr>';
                 }else{
-                    encabezados = '<tr><th>Tipo de ejercicio</th><th>Frecuencia</th></tr>';
+                    encabezados = '<tr><th width="100%">Tipo de ejercicio</th><th width="100%">Frecuencia</th></tr>';
                   lista += '<tr><td>'+child.val()["Ejercicio"]+'</td><td>'+child.val()["Frecuencia"]+'</td></tr>';
                 }          }                           
           });
@@ -153,7 +157,7 @@ window.onload = function(){
      if(parseInt(document.getElementById('validacionHidden').value) == 1){
         baseReferencia = firebase.database().ref('Notificaciones/');
         baseReferencia.once('value').then(function(data){
-          var block = '<option value=""> tipo de notificación</option>';
+          var block = '<option value="">tipo de notificación</option>';
           data.forEach(function(child){
             if(data.key != child.key){
                 block += '<option value="'+child.key+'">'+child.key+'</option>';
@@ -164,27 +168,77 @@ window.onload = function(){
         });
     }
   }
+
+  function mostrarNotificaciones(tipoNot){
+      var tipo = document.getElementById(tipoNot).value;
+      if(tipo != ''){
+           baseReferencia = firebase.database().ref('/Notificaciones/'+tipo+'/Recomendaciones/').orderByChild('/Notificaciones/'+tipo+'/Recomendaciones/').limitToLast(5);
+        baseReferencia.once('value').then(function(data) {
+        //var lista = '';
+        data.forEach(function(child){ 
+          //var Noti = JSON.stringify(child.val());
+          /*if(data.key != child.key){
+              baseReferencia2 = firebase.database().ref('Notificaciones/Correo/Recomendaciones/'+child.key+'/');
+              console.log(child.val()["Ejercicio"]);
+              console.log(child.val()["Frecuencia"]);
+          }  */
+          //----------------------------NOTIFICACION (API MOZILLA)-------------------
+      if(!("Notification" in window)){
+          alert("Este Navegador no permite notificaciones");
+      }
+      else if(Notification.permission == "granted"){
+          //var titulo = child.val()["Ejercicio"];
+          var options ={
+            body: 'Frecuencia ' + child.val()["Frecuencia"],
+            icon:"icon.png",
+            sound:"tono_loco.mp3"
+          };
+          //console.log(options);
+          var notification = new Notification('Ejercicio '+  child.val()["Ejercicio"],options);
+          notification.sound;
+      } 
+      else if(Notification.permission !== 'denegado'){
+         Notification.requestPermission(function(permission){
+
+          if(!('permission') in Notification){
+            console.log('permiso denegado');
+            Notification.permission = permission;
+          }
+         });
+      }                         
+    });
+    });
+      }
+  }
   
   function insertEjercicio(event,tipoN){
   	event.preventDefault();
-    if(document.getElementById('tipoNotificacion').value != '' && document.getElementById('tipo').value != '' && document.getElementById('frecuencia').value != ''){
-        firebase.database().ref('Notificaciones/'+document.getElementById(tipoN).value+'/Recomendaciones/').push({
-          Ejercicio:document.getElementById('tipo').value,
-          Frecuencia: document.getElementById('frecuencia').value
-        });
-      setTimeout(function(){
-          $("#alertSuccess").html('Registro éxitoso de ejercicio '+document.getElementById('tipoNotificacion').value);
-          $("#alertSuccess").show('fast');
-      },200);
-      setTimeout(function(){
-        $("#alertSuccess").html('');
-        $("#alertSuccess").hide('fast');
-      },5000);
-      document.getElementById('tipoNotificacion').value = '';
-      document.getElementById('tipo').value = '';
-      document.getElementById('frecuencia').value = '';
+    console.log(document.getElementById('roleHidden').value);
+    if(document.getElementById('validacionHidden').value == 1 && 
+      document.getElementById('roleHidden').value == 1){
+       if(document.getElementById('tipoNotificacion').value != '' && 
+        document.getElementById('tipo').value != '' && 
+        document.getElementById('frecuencia').value != ''){
+          firebase.database().ref('Notificaciones/'+document.getElementById(tipoN).value+'/Recomendaciones/').push({
+            Ejercicio:document.getElementById('tipo').value,
+            Frecuencia: document.getElementById('frecuencia').value
+          });
+        setTimeout(function(){
+            $("#alertSuccess").html('Registro éxitoso de ejercicio '+document.getElementById('tipoNotificacion').value);
+            $("#alertSuccess").show('fast');
+        },200);
+        setTimeout(function(){
+          $("#alertSuccess").html('');
+          $("#alertSuccess").hide('fast');
+        },5000);
+        document.getElementById('tipoNotificacion').value = '';
+        document.getElementById('tipo').value = '';
+        document.getElementById('frecuencia').value = '';
+      }else{
+        alert('Por favor llene todos los campos');
+      }
     }else{
-      alert('Por favor llene todos los campos');
+      alert('Debes ser administrador para hacer esta operación');
     }
   }
 </script>	
