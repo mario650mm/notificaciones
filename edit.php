@@ -1,6 +1,5 @@
 <?php
 $id = isset($_GET['id']) ? $_GET['id']:0;
-$tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,29 +16,19 @@ $tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
 	<br>
 	<div id="alertGeneral" class="alert" style="display:none;"></div>
 	<div class="row">
-		<!--<div class="col-sm-4">
-	      	<label for="tipoNotificacion">Tipo de notificación</label>
-	      	<select id="tipoNotificacion" name="tipoNotificacion" class="form-control">
-	      	</select>
-    	</div>-->
-		<div class="col-sm-4">
-			<label for="tipo">Ejercicio</label>
-			<input type="text" id="tipo" name="tipo" class="form-control" />
+		<div class="col-sm-6">
+			<label for="titulo">Título</label>
+			<input type="text" id="titulo" name="titulo" class="form-control" maxlength="100" />
 		</div>
-		<div class="col-sm-4">
-			<label for="frecuencia" id="lblEjercicio">Frecuencia</label>
-			<select id="frecuencia" name="frecuencia" class="form-control">
-				<option value="">seleccione una frecuencia</option>
-				<option value="Diario">Diario</option>
-				<option value="Semanal">Semanal</option>
-				<option value="Mensual">Mensual</option>
-			</select>
+		<div class="col-sm-6">
+			<label for="cuerpo">Cuerpo</label>
+			<textarea id="cuerpo" name="cuerpo" class="form-control" cols="80" rows="6"></textarea>
 		</div>
 	</div>
 	<br>
 	<div class="row">
 		<div class="col-sm-3">
-			<button class="btn btn-success btn-sm" onclick="return editarRegistro(event,'ejercicio');">
+			<button class="btn btn-success btn-sm" onclick="return editarRegistro(event);">
 			Actualizar</button>
 		</div>
 		<div class="col-sm-3">
@@ -57,11 +46,7 @@ $tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
 	var id = "<?php echo $id; ?>";
 	var tipoE = "<?php echo $tipo; ?>";
 	window.onload = function(){
-		//llenarCombo();
 		traerDatos(id);
-		/*setTimeout(function(){
-			document.getElementById('tipoNotificacion').value = tipoE;
-		},600);*/
 	};
   var config = {
     apiKey: "AIzaSyC19RF5MhVJhlrrN9LZ3SRpBrqjwWztyiw",
@@ -72,25 +57,11 @@ $tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
   };
   firebase.initializeApp(config);
 
-  function llenarCombo(){
-    baseReferencia = firebase.database().ref('Notificaciones/');
-    baseReferencia.once('value').then(function(data){
-      var block = '<option value=""> tipo de notificación</option>';
-      data.forEach(function(child){
-          if(data.key != child.key){
-              block += '<option value="'+child.key+'">'+child.key+'</option>';
-          }
-      });
-      document.getElementById('tipoNotificacion').innerHTML = block;
-    });
-  }
-
-  function traerDatos(tipo){
-  	actividadReferencia = firebase.database().ref('Notificaciones/'+tipoE+'/Recomendaciones/'+id+'/');
+  function traerDatos(){
+  	actividadReferencia = firebase.database().ref('Notificaciones/notifications/'+id+'/');
   	actividadReferencia.on('value',function(datos){
-  		//console.log(datos.val());
-  		document.getElementById('tipo').value = datos.val().Ejercicio;
-  		document.getElementById('frecuencia').value = datos.val().Frecuencia;
+  		document.getElementById('titulo').value = datos.val().titulo;
+  		document.getElementById('cuerpo').value = datos.val().cuerpo;
   	});
 
   }
@@ -99,11 +70,11 @@ $tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
       event.preventDefault();
       var confirmacion = confirm('Estás seguro de actualizar el registro '+id+' ?');
       if(confirmacion == true){
-      	if(document.getElementById('tipo').value != '' && document.getElementById('frecuencia').value != ''){
-      		actividadReferencia = firebase.database().ref('Notificaciones/'+tipoE+'/Recomendaciones/'+id+'/');
+      	if(document.getElementById('titulo').value != '' && document.getElementById('cuerpo').value != ''){
+      		actividadReferencia = firebase.database().ref('Notificaciones/notifications/'+id+'/');
 	  		actividadReferencia.update({
-	  		Ejercicio:document.getElementById('tipo').value,
-	  		Frecuencia:document.getElementById('frecuencia').value
+	  		titulo:document.getElementById('titulo').value,
+	  		cuerpo:document.getElementById('cuerpo').value
 	  	});
 		  	setTimeout(function(){
 		  		$("#alertGeneral").addClass('alert-success');
@@ -116,7 +87,7 @@ $tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
 		  		$("#alertGeneral").hide('fast');
 		  	},4000);
 		  	setTimeout(function(){
-		  		window.location = 'index.php';
+		  		window.location = 'index.php?update='+id;
 		  	},600);
       	}else{
       		 alert('Por favor llene todos los campos');
@@ -130,7 +101,7 @@ $tipo = isset($_GET['tipo']) ? $_GET['tipo']:0;
   	event.preventDefault();
   	var confirmacion = confirm('Estás seguro de eliminar este registro !');
   	if(confirmacion == true){
-  		actividadReferencia = firebase.database().ref('Notificaciones/'+tipoE+'/Recomendaciones/'+id+'/');
+  		actividadReferencia = firebase.database().ref('Notificaciones/notifications/'+id+'/');
   		actividadReferencia.remove();
   		setTimeout(function(){
 	  		$("#alertGeneral").addClass('alert-danger');
