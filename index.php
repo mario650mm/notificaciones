@@ -1,5 +1,9 @@
 <?php 
   $update = isset($_GET['update']) ? $_GET['update']:0;
+
+  $tituloPost = isset($_POST['titulo']) ? $_POST['titulo']:0;
+
+  $cuerpoPost = isset($_POST['cuerpo']) ? $_POST['cuerpo']:0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -213,10 +217,27 @@ window.onload = function(){
       document.getElementById('roleHidden').value == 1){
        if(document.getElementById('titulo').value != '' && 
         document.getElementById('cuerpo').value != ''){
+          var txtTitulo = document.getElementById('titulo').value;
+          var txtCuerpo = document.getElementById('cuerpo').value;
           firebase.database().ref('Notificaciones/notifications/').push({
-            titulo:document.getElementById('titulo').value,
-            cuerpo: document.getElementById('cuerpo').value
+            titulo:txtTitulo,
+            cuerpo:txtCuerpo
           });
+          var xhttp = new XMLHttpRequest();
+          xhttp.open("POST", "https://fcm.googleapis.com/fcm/send",true);
+          xhttp.setRequestHeader("Content-Type", "application/json");
+          xhttp.setRequestHeader("Authorization", "key=AIzaSyBJJiISyr3m1KERRywg-xgjmghqjc6dasA");
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              if(this.status == 200){
+                console.log('notificación enviada correctamente');
+              }
+            }
+          };
+          xhttp.send(JSON.stringify(
+          {"notification":{"body":txtCuerpo,"title":txtTitulo,"sound":"default","priority":"high"},"data":{"id":null},
+                "to":"e-ueqv-RDe8:APA91bFL2VTLKszrsO8kV1WnYf4RsKKch5lR4pQc0trDFNz8v6bXAXT_-HZsC30xqRbr7I02LDe4WF_yUpM8PT27lYkE0MXzkTvUGtRoAZo0vNi7RVG8zJW43X4ToOY-QtzgL3NdccuL"
+          }));
         setTimeout(function(){   
             $("#alertSuccess").html(document.getElementById('titulo').value+' registrado éxitosamente ');   
             $("#alertSuccess").show('fast');

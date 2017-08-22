@@ -71,24 +71,41 @@ $id = isset($_GET['id']) ? $_GET['id']:0;
       var confirmacion = confirm('Estás seguro de actualizar el registro '+id+' ?');
       if(confirmacion == true){
       	if(document.getElementById('titulo').value != '' && document.getElementById('cuerpo').value != ''){
+      		var txtCuerpo = document.getElementById('cuerpo').value;
+      		var txtTitulo = document.getElementById('titulo').value;
       		actividadReferencia = firebase.database().ref('Notificaciones/notifications/'+id+'/');
 	  		actividadReferencia.update({
-	  		titulo:document.getElementById('titulo').value,
-	  		cuerpo:document.getElementById('cuerpo').value
+	  		titulo:txtTitulo,
+	  		cuerpo:txtCuerpo
 	  	});
-		  	setTimeout(function(){
-		  		$("#alertGeneral").addClass('alert-success');
-		  		$("#alertGeneral").html('Registro actualizado correctamente');
-		  		$("#alertGeneral").show('fast');
-		  	},200);
-		  	setTimeout(function(){
-		  		$("#alertGeneral").removeClass('alert-success');
-		  		$("#alertGeneral").html('');
-		  		$("#alertGeneral").hide('fast');
-		  	},4000);
-		  	setTimeout(function(){
-		  		window.location = 'index.php?update='+id;
-		  	},600);
+	  	var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "https://fcm.googleapis.com/fcm/send",true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.setRequestHeader("Authorization", "key=AIzaSyBJJiISyr3m1KERRywg-xgjmghqjc6dasA");
+        xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+		     	if(this.status == 200){
+		     		console.log('notificación enviada correctamente');
+		     	}
+		    }
+		};
+        xhttp.send(JSON.stringify(
+        {"notification":{"body":txtCuerpo,"title":txtTitulo,"sound":"default","priority":"high"},"data":{"id":null},
+              "to":"e-ueqv-RDe8:APA91bFL2VTLKszrsO8kV1WnYf4RsKKch5lR4pQc0trDFNz8v6bXAXT_-HZsC30xqRbr7I02LDe4WF_yUpM8PT27lYkE0MXzkTvUGtRoAZo0vNi7RVG8zJW43X4ToOY-QtzgL3NdccuL"
+        }));
+	  	setTimeout(function(){
+	  		$("#alertGeneral").addClass('alert-success');
+	  		$("#alertGeneral").html('Registro actualizado correctamente');
+	  		$("#alertGeneral").show('fast');
+	  	},200);
+	  	setTimeout(function(){
+	  		$("#alertGeneral").removeClass('alert-success');
+	  		$("#alertGeneral").html('');
+	  		$("#alertGeneral").hide('fast');
+	  	},4000);
+	  	setTimeout(function(){
+	  		window.location = 'index.php?update='+id;
+	  	},600);
       	}else{
       		 alert('Por favor llene todos los campos');
       	}
